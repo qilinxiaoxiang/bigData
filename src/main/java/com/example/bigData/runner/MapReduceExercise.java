@@ -2,7 +2,6 @@ package com.example.bigData.runner;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
@@ -26,7 +25,7 @@ public class MapReduceExercise {
         public void map(Object key, Text value, Context context
         ) throws IOException, InterruptedException {
             String line = value.toString();
-            String[] split = line.split(" ");
+            String[] split = line.split("\t");
             int length = split.length;
             word.set(split[1]);
             context.write(word, new FlowWritable(split[length-3], split[length-2]));
@@ -67,12 +66,12 @@ public class MapReduceExercise {
 
         @Override
         public void write(DataOutput out) throws IOException {
-            out.writeChars(this.upload + " " + this.download + " " + sum);
+            out.writeUTF(this.upload + " " + this.download + " " + sum);
         }
 
         @Override
         public void readFields(DataInput in) throws IOException {
-            String line = in.readLine();
+            String line = in.readUTF();
             String[] split = line.split(" ");
             this.upload = Long.parseLong(split[0]);
             this.download = Long.parseLong(split[1]);
@@ -84,19 +83,25 @@ public class MapReduceExercise {
         public int compareTo(FlowWritable that) {
             return  (Long.compare(this.sum, that.sum));
         }
+
+        @Override
+        public String toString() {
+            return upload + " " + download + " " + sum;
+        }
     }
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "word count");
+        Job job = Job.getInstance(conf, "flow");
         job.setJarByClass(MapReduceExercise.class);
         job.setMapperClass(FlowMapper.class);
         job.setCombinerClass(FlowReducer.class);
         job.setReducerClass(FlowReducer.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(FlowWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        int status = job.waitForCompletion(true) ? 0 : 1;
+        System.exit(status);
     }
 }
