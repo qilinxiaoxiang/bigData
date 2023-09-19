@@ -1,1 +1,151 @@
 Previously, tasks were at the package level, with different packages running at different times due to varying time zones, so the issue of not supporting simultaneous execution was not prominent. However, now, tasks are at the SLG level, and tasks from different SLGs within the same package will run at the same time. Therefore, the inability to support simultaneous execution becomes a problem.
+
+my-batch-job/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── com/
+│   │   │   │   ├── example/
+│   │   │   │   │   ├── mybatchjob/
+│   │   │   │   │   │   ├── MyBatchJobApplication.java
+│   │   │   │   │   │   ├── configuration/
+│   │   │   │   │   │   │   ├── BatchConfiguration.java
+│   │   │   │   │   │   ├── model/
+│   │   │   │   │   │   │   ├── MyData.java
+│   │   │   │   │   │   ├── reader/
+│   │   │   │   │   │   │   ├── OracleReader.java
+│   │   │   │   │   │   ├── writer/
+│   │   │   │   │   │   │   ├── FileWriter.java
+│   │   ├── resources/
+│   │   │   ├── application.properties
+├── pom.xml
+
+
+package com.example.mybatchjob;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class MyBatchJobApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MyBatchJobApplication.class, args);
+    }
+}
+
+package com.example.mybatchjob.configuration;
+
+import com.example.mybatchjob.model.MyData;
+import com.example.mybatchjob.reader.OracleReader;
+import com.example.mybatchjob.writer.FileWriter;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class BatchConfiguration {
+
+    @Autowired
+    public JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    public StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    OracleReader oracleReader;
+
+    @Autowired
+    FileWriter fileWriter;
+
+    @Bean
+    public Step myStep() {
+        return stepBuilderFactory.get("myStep")
+                .<MyData, MyData> chunk(10)
+                .reader(oracleReader)
+                .writer(fileWriter)
+                .build();
+    }
+
+    @Bean
+    public Job myJob() {
+        return jobBuilderFactory.get("myJob")
+                .start(myStep())
+                .build();
+    }
+}
+
+
+package com.example.mybatchjob.reader;
+
+import com.example.mybatchjob.model.MyData;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
+
+@Component
+public class OracleReader extends JdbcCursorItemReader<MyData> {
+
+    @Autowired
+    public OracleReader(DataSource dataSource) {
+        this.setDataSource(dataSource);
+        this.setSql("SELECT column1, column2, column3 FROM my_table");
+        this.setRowMapper((resultSet, i) -> {
+            MyData data = new MyData();
+            data.setColumn1(resultSet.getString(1));
+            data.setColumn2(resultSet.getString(2));
+            data.setColumn3(resultSet.getString(3));
+            return data;
+        });
+    }
+}
+
+
+package com.example.mybatchjob.writer;
+
+import com.example.mybatchjob.model.MyData;
+import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
+import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.stereotype.Component;
+
+@Component
+public class FileWriter extends FlatFileItemWriter<MyData> {
+
+    public FileWriter() {
+        this.setResource(new FileSystemResource("output/my_output_file.txt"));
+        this.setLineAggregator(new DelimitedLineAggregator<MyData>() {{
+            setDelimiter(",");
+            setFieldExtractor(new BeanWrapperFieldExtractor<MyData>() {{
+                setNames(new String[] {"column1", "column2", "column3"});
+            }});
+        }});
+    }
+}
+
+package com.example.mybatchjob.model;
+
+public class MyData {
+
+    private String column1;
+    private String column2;
+    private String column3;
+
+    // getters and setters
+}
+
+
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521:xe
+spring.datasource.username=username
+spring.datasource.password=password
+spring.datasource.driver-class-name=oracle.jdbc.driver.OracleDriver
+
+
+
