@@ -620,3 +620,38 @@ The `JobRepository` in Spring Batch and your repositories in the `repository` pa
 The `@EnableBatchProcessing` annotation doesn't directly affect your JPA repositories. It primarily configures beans for Spring Batch, such as the `JobRepository`, `JobLauncher`, and various other beans required for batch processing.
 
 If you add `@EnableBatchProcessing`, you don't need to modify your existing JPA repositories. However, you do need to ensure that you have a `DataSource` bean defined in your application context, because `@EnableBatchProcessing` requires it to configure the `JobRepository`. If you're using Spring Boot with Spring Data JPA, this `DataSource` bean is automatically configured for you.
+
+
+
+
+
+package com.example.mybatchjob.writer;
+
+import com.example.mybatchjob.model.MyData;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.stereotype.Component;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+@Component
+public class MyDataListWriter implements ItemWriter<List<MyData>> {
+
+    private static final String FILE_PATH = "output/my_output_file.txt";
+
+    @Override
+    public void write(List<? extends List<MyData>> items) throws Exception {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_PATH, true))) {
+            for (List<MyData> dataList : items) {
+                for (MyData data : dataList) {
+                    writer.println(data.getColumn1() + "," + data.getColumn2() + "," + data.getColumn3());
+                }
+            }
+        } catch (IOException e) {
+            throw new Exception("Error writing to file: " + FILE_PATH, e);
+        }
+    }
+}
+
