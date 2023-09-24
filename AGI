@@ -1,157 +1,19 @@
-Sure, I can help you with that. Here's a basic example of how you might structure your Spring Batch job using a Tasklet. 
+<configuration>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-First, let's define the Tasklet:
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${LOG_PATH}/application.log</file>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
 
-```java
-import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.persistence.EntityManager;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-
-@Component
-public class OracleTasklet implements Tasklet {
-
-    @Autowired
-    private EntityManager entityManager;
-
-    @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        List<Object[]> results = entityManager.createNativeQuery("YOUR QUERY HERE").getResultList();
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"))) {
-            for (Object[] result : results) {
-                writer.write(result[0] + ", " + result[1] + "\n"); // adjust this line based on your data structure
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return RepeatStatus.FINISHED;
-    }
-}
-```
-
-Next, let's define the Spring Batch job:
-
-```java
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-public class BatchConfiguration {
-
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private OracleTasklet oracleTasklet;
-
-    @Bean
-    public Step step() {
-        return stepBuilderFactory.get("step")
-                .tasklet(oracleTasklet)
-                .build();
-    }
-
-    @Bean
-    public Job exportUserJob() {
-        return jobBuilderFactory.get("exportUserJob")
-                .incrementer(new RunIdIncrementer())
-                .flow(step())
-                .end()
-                .build();
-    }
-}
-```
-
-Please replace `"YOUR QUERY HERE"` with your actual query and adjust the line `writer.write(result[0] + ", " + result[1] + "\n");` based on your data structure. 
-
-This is a very basic example and might need to be adjusted based on your specific needs. For example, you might want to add error handling, logging, or additional steps.
-
-
-To perform pagination with JPA, you can use the `Pageable` interface provided by Spring Data JPA. You'll need to create a `PageRequest` object, which is an implementation of the `Pageable` interface, and pass it to your repository method.
-
-First, you need to define a repository for your entity. For example:
-
-```java
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface Table1Repository extends JpaRepository<Table1Entity, Long> {
-    Page<Table1Entity> findAll(Pageable pageable);
-}
-```
-
-Then, in your Tasklet, you can use this repository to perform the paginated query:
-
-```java
-import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-
-@Component
-public class OracleTasklet implements Tasklet {
-
-    @Autowired
-    private Table1Repository table1Repository;
-
-    private static final int PAGE_SIZE = 100; // adjust this based on your needs
-
-    @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        int pageNumber = 0;
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt", true))) {
-            while (true) {
-                Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
-                Page<Table1Entity> page = table1Repository.findAll(pageable);
-
-                if (!page.hasContent()) {
-                    break;
-                }
-
-                for (Table1Entity result1 : page.getContent()) {
-                    // Use result1 to query table 2 and table 3
-                    // Write the results to the file
-                }
-
-                pageNumber++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return RepeatStatus.FINISHED;
-    }
-}
-```
-
-This code will read data from table 1 page by page using JPA for pagination, and then you can use that data to query tables 2 and 3, and write the results to a file. The file is opened in append mode (`new FileWriter("output.txt", true)`), so each page's results will be appended to the file. The file is closed after all pages have been processed to ensure that the data is written to the file and not kept in memory.
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>
