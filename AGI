@@ -48,3 +48,74 @@ public class FileOperations {
 ```
 
 This modification checks if the path is absolute using `path.isAbsolute()`. If it is, it creates the subpath as before. If it's not, it uses the subpath directly. This should handle relative paths correctly on Windows.
+
+
+Sure, here's the updated unit test class that handles both absolute and relative paths:
+
+```java
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class FileOperationsTest {
+    private final String absoluteFilePath = "/a/b/c.txt";
+    private final String relativeFilePath = "output/a/c.txt";
+    private final Path absolutePath = Paths.get(absoluteFilePath);
+    private final Path relativePath = Paths.get(relativeFilePath);
+
+    @BeforeEach
+    void setUp() throws IOException {
+        // Delete the files and directories if they exist
+        deleteIfExists(absolutePath);
+        deleteIfExists(relativePath);
+    }
+
+    @AfterEach
+    void tearDown() throws IOException {
+        // Delete the files and directories if they exist
+        deleteIfExists(absolutePath);
+        deleteIfExists(relativePath);
+    }
+
+    @Test
+    void createFileWithPermissions_absolutePath() {
+        // Call the method
+        FileOperations.createFileWithPermissions(absoluteFilePath);
+
+        // Check that the file exists
+        assertTrue(Files.exists(absolutePath));
+    }
+
+    @Test
+    void createFileWithPermissions_relativePath() {
+        // Call the method
+        FileOperations.createFileWithPermissions(relativeFilePath);
+
+        // Check that the file exists
+        assertTrue(Files.exists(relativePath));
+    }
+
+    private void deleteIfExists(Path path) throws IOException {
+        // Delete the file if it exists
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
+
+        // Delete the directories if they exist
+        Path parent = path.getParent();
+        while (parent != null && Files.exists(parent)) {
+            Files.delete(parent);
+            parent = parent.getParent();
+        }
+    }
+}
+```
+
+This test class includes tests for both an absolute path and a relative path. It also includes a `deleteIfExists()` method that deletes a file and its parent directories if they exist. This method is called in the `setUp()` and `tearDown()` methods to ensure the file system is in the correct state before and after each test.
