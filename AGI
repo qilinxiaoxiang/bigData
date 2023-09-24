@@ -1,23 +1,39 @@
-<configuration>
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
+Sure, here are the SQL insert statements with actual test data for different scenarios:
 
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${LOG_PATH}/application.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${LOG_PATH}/application.%d{yyyy-MM-dd}.log</fileNamePattern>
-      <maxHistory>30</maxHistory>
-    </rollingPolicy>
-    <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
+1. Insertion into `tb_fbd_rate_rule_mst`:
 
-  <root level="info">
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
-  </root>
-</configuration>
+```sql
+INSERT INTO tb_fbd_rate_rule_mst (rule_id, rate_code, effective_ts, rule_status, benchmark_name, day_count_basis, long_short_ind, rate_description)
+VALUES (1, 'RC1', TO_TIMESTAMP('2023-09-23 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'A', 'Benchmark1', 'DCB1', 'L', 'Rate Description 1'),
+       (2, 'RC2', TO_TIMESTAMP('2023-09-22 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'A', 'Benchmark2', 'DCB2', 'S', 'Rate Description 2'),
+       (3, 'RC3', TO_TIMESTAMP('2023-09-24 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'I', 'Benchmark3', 'DCB3', 'L', 'Rate Description 3'),
+       (4, 'RC4', TO_TIMESTAMP('2023-09-21 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'A', 'Benchmark4', 'DCB4', 'S', 'Rate Description 4');
+```
+
+2. Insertion into `tb_fbd_rate_mst`:
+
+```sql
+INSERT INTO tb_fbd_rate_mst (rule_id, processing_date, curr_code, benchmark_rate, spread, resolved_rate, created_ts, remark)
+VALUES (1, TO_DATE('2023-09-24', 'YYYY-MM-DD'), 'USD', 1.5, 0.2, 1.7, TO_TIMESTAMP('2023-09-24 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Remark 1'),
+       (2, TO_DATE('2023-09-24', 'YYYY-MM-DD'), 'EUR', 0.9, 0.1, 1.0, TO_TIMESTAMP('2023-09-24 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Remark 2'),
+       (3, TO_DATE('2023-09-23', 'YYYY-MM-DD'), 'JPY', 100, 10, 110, TO_TIMESTAMP('2023-09-23 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Remark 3'),
+       (4, TO_DATE('2023-09-24', 'YYYY-MM-DD'), 'GBP', 0.8, 0.1, 0.9, TO_TIMESTAMP('2023-09-24 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Remark 4');
+```
+
+3. Insertion into `tb_fbd_element_filter_mst`:
+
+```sql
+INSERT INTO tb_fbd_element_filter_mst (rule_id, element_type, element_key, element_value, element_order)
+VALUES (1, 'SECURITY', 'Key1', 'Value1', 1),
+       (1, 'ACCOUNT', 'Key2', 'Value2', 2),
+       (2, 'OTHER', 'Key3', 'Value3', 3),
+       (3, 'SECURITY', 'Key4', 'Value4', 4),
+       (4, 'ACCOUNT', 'Key5', 'Value5', 5);
+```
+
+These data cover different scenarios:
+
+- Rule 1 and 2 are active and have rates for the 'asOfDate'.
+- Rule 3 is inactive but has rates for the 'asOfDate'.
+- Rule 4 is active but does not have rates for the 'asOfDate'.
+- Different element types and orders are covered in the element table.
