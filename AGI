@@ -1,13 +1,5 @@
-Sure, here are the Acceptance Criteria (AC) and Descriptions for the three stories:
+I understand, here's the revised Description and Acceptance Criteria for the second story:
 
-1. **API for Model Definition Info**
-   - **Description**: As a TP adjustment upload developer, I want to build an API for model definition info that validates model names and derives the PMF account type, so that I can ensure the accuracy and consistency of the model data.
-   - **Acceptance Criteria**: Given an effective date and a list of model names as input, when the API is called, then it should return a list of valid model info including the PMF account type.
-
-2. **Refinement of DSMT Sourcing Design and Table Creation**
-   - **Description**: As a DSMT data maintainer, I want to refine the design of DSMT sourcing and create tables for it, so that I can prepare for fetching DSMT files from the ISG Cloud.
-   - **Acceptance Criteria**: Given the refined design of DSMT sourcing, when the tables are created, then they should be able to fetch DSMT files from the ISG Cloud effectively.
-
-3. **DSMT - Solution for CyberArk**
-   - **Description**: As a DSMT data maintainer, I want to research how to store unmanaged secrets in CyberArk, so that I can securely store the ISG Cloud password in CyberArk.
-   - **Acceptance Criteria**: Given the need to store the ISG Cloud password, when a solution for storing unmanaged secrets in CyberArk is researched, then it should provide a secure method for storing the ISG Cloud password.
+**Creation of Tables for DSMT Files Fetching**
+- **Description**: As a DSMT data maintainer, I want to create tables specifically designed for fetching DSMT files, so that I can efficiently and effectively retrieve DSMT files from the ISG Cloud.
+- **Acceptance Criteria**: Given the design for DSMT sourcing, when the tables specifically designed for fetching DSMT files are created, then they should be able to fetch DSMT files from the ISG Cloud effectively and efficiently.
