@@ -1,12 +1,23 @@
-Hello everyone.
-Good day! I am Xiang, and I am here to present to you the core value proposition of our Funds Transfer Pricing (FTP) system at Citi Bank.
-Before we delve into the specifics, let's briefly understand what FTP is. Funds Transfer Pricing is a method used in banking to measure how much each source of funding (deposits and loans) contributes to the bank's profitability. It's a system that helps us allocate the net interest margin - the difference between interest earned and interest paid - among different business units within the bank.
-Firstly, let's address the question, "Who are our customers?" Our primary customers are the various business units within Citi Bank itself. These include the treasury, the asset and liability management team, and the various lending and deposit-taking units. We also serve external customers, such as regulators and auditors, who require transparency and accuracy in our financial reporting.
-Now, let's move on to the value we create. Our FTP system is designed to provide a fair and transparent method of attributing the net interest margin among various business units. It allows us to accurately measure the profitability of each unit, thereby enabling informed decision-making.
-But who influences our customer's decision? Or in other words, who is our customer's customer? The answer is the bank's stakeholders, which include shareholders, employees, and customers. They all have a vested interest in the bank's profitability, and our FTP system plays a crucial role in ensuring that the bank's resources are allocated efficiently.
-Now, let's apply the FABE model to further illustrate the value of our FTP system.
-Feature: Our FTP system uses sophisticated models to stamp rates and perform rate spread calculations and analysis.
-Advantage: This allows for a more accurate and fair distribution of the net interest margin among business units, which in turn leads to more informed decision-making.
-Benefit: By providing a clear picture of each unit's profitability, our FTP system helps the bank allocate resources more efficiently, thereby maximizing overall profitability.
-Evidence: Since implementing our FTP system, we have seen a significant improvement in the bank's operational efficiency and profitability. For instance, the bank's net interest margin has increased by 15% in the last fiscal year, and the return on equity has improved by 10%.
-Let's recap it, our FTP system is not just a tool for stamping rates and calculating spreads. It is a strategic asset that helps Citi Bank maximize its profitability and create value for all its stakeholders. Thank you for your attention.
+Ladies and Gentlemen,
+
+Good day! I am Mike, and today I'm excited to talk about the heart of our financial operations at Citi Bank - the CitiFTP system.
+
+CitiFTP is our global platform that standardizes the transfer pricing treatment across our entire balance sheet. It's like the central nervous system of our bank, integrating the Liquidity Premium component and managing the cost of funds we lend to our customers. It's the tool our Global and Country Treasuries and finance teams rely on daily.
+
+Now, let's imagine Citi Bank as a body composed of three main parts - Asset units, Liability units, and Treasuries. Our CitiFTP system is like the brain, managing the funds and their pricing to ensure Citi's profitability and insulating our business units from the risk of interest rate fluctuations. It's our shield against uncertainties and our strategy for success.
+
+So, who uses this system? Our users are the various business units within Citi Bank, including the treasury, the asset and liability management team, and the various lending and deposit-taking units. They all rely on CitiFTP to make informed decisions and manage risks.
+
+Now, let's talk about the value we create. Our CitiFTP system is not just about profitability - it's also about risk control. It's like a lighthouse guiding a ship, helping us navigate the choppy waters of financial markets. It ensures we're not just making profits, but we're also managing our risks effectively.
+
+Let's break it down a bit more, think of it like this:
+
+Our CitiFTP system, that's our feature, it's a sophisticated system that standardizes transfer pricing and integrates the Liquidity Premium component. 
+
+What's the advantage here? Well, it gives us a clear picture of our profitability and helps us manage risks effectively. It's like having a map in a treasure hunt.
+
+And the benefit? It's our compass, guiding us towards profitable decisions and away from potential risks. It's like having a GPS in a car, guiding us to our destination.
+
+As for evidence, since we've implemented our CitiFTP system, we've expanded its use to more countries, integrated data from over ten upstream systems, and generated feeds for more than ten downstream systems. We're processing millions of tickets and planning to cover pool transfer pricing and capital transfer pricing in the future. It's like we're building a global financial network, all connected through our CitiFTP system.
+
+In conclusion, our CitiFTP system is not just a tool - it's our strategy for success. It's our way of creating value, managing risks, and ensuring profitability. It's how we navigate the complex world of finance and come out on top. Thank you for your attention.
