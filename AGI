@@ -1,2 +1,26 @@
-But before we dive in, let's simplify what transfer pricing is. Picture Citi Bank as a team playing a game. We've got our players - the Asset and Liability units, and we've got our coach - the Treasury. Now, in this game, the players need to manage their funds effectively, right? That's where transfer pricing comes in. It's like the playbook that guides how funds are distributed and managed. It ensures that every player knows their role and that the team stays profitable. And the best part? It shields our players from the ups and downs of interest rates.
-So, who uses this playbook? It's our players - the asset and liability management team, and our coach - the treasury. They all rely on CitiFTP to make smart decisions and manage risks.
+In shell scripting, you can use the `jq` command-line JSON processor to parse JSON and extract values. Here's how you can extract the value of the "cde" parameter:
+
+```bash
+json_string='{"abc":"bcd","cde":"efg"}'
+cde_value=$(echo $json_string | jq -r '.cde')
+echo $cde_value
+```
+
+In this script, `json_string` is a variable that contains a JSON string. The `echo $json_string | jq -r '.cde'` command pipes the JSON string to `jq`, which extracts the value of the "cde" parameter. The `-r` option tells `jq` to output raw strings, not JSON-encoded strings. The extracted value is then stored in the `cde_value` variable and printed.
+
+Please note that `jq` is not included in most Unix/Linux distributions by default, so you may need to install it. You can usually do this with a package manager like `apt` or `yum`. For example, on Ubuntu, you can install `jq` with `sudo apt install jq`.
+
+
+If you don't have `jq` and can't install it, you can use other command-line tools to parse JSON. However, please note that these methods are generally less reliable and more error-prone than using a dedicated JSON parser like `jq`.
+
+Here's an example of how you can extract the value of the "cde" parameter using `grep`, `cut`, and `tr`:
+
+```bash
+json_string='{"abc":"bcd","cde":"efg"}'
+cde_value=$(echo $json_string | grep -o '"cde":"[^"]*"' | cut -d: -f2 | tr -d '"')
+echo $cde_value
+```
+
+In this script, `grep -o '"cde":"[^"]*"'` extracts the "cde" key-value pair from the JSON string. `cut -d: -f2` splits this pair at the colon and extracts the second field, which is the value. `tr -d '"'` removes the double quotes around the value. The extracted value is then stored in the `cde_value` variable and printed.
+
+Please note that this method assumes that the JSON string is formatted exactly as in your example, with no spaces around the colons. If the JSON string is formatted differently, or if it contains nested objects or arrays, this method may not work correctly. In general, if you need to parse JSON in a shell script, it's best to use a dedicated JSON parser like `jq` if possible.
