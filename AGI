@@ -1,13 +1,1 @@
-If you don't have `jq` and can't install it, you can use other command-line tools to parse JSON. However, please note that these methods are generally less reliable and more error-prone than using a dedicated JSON parser like `jq`.
-
-Here's an example of how you can extract the value of the "cde" parameter using `grep`, `cut`, and `tr`:
-
-```bash
-json_string='{"abc":"bcd","cde":"efg"}'
-cde_value=$(echo $json_string | grep -o '"cde":"[^"]*"' | cut -d: -f2 | tr -d '"')
-echo $cde_value
-```
-
-In this script, `grep -o '"cde":"[^"]*"'` extracts the "cde" key-value pair from the JSON string. `cut -d: -f2` splits this pair at the colon and extracts the second field, which is the value. `tr -d '"'` removes the double quotes around the value. The extracted value is then stored in the `cde_value` variable and printed.
-
-Please note that this method assumes that the JSON string is formatted exactly as in your example, with no spaces around the colons. If the JSON string is formatted differently, or if it contains nested objects or arrays, this method may not work correctly. In general, if you need to parse JSON in a shell script, it's best to use a dedicated JSON parser like `jq` if possible.
+"Embrace new technologies, such as large language models, in your spare time, and try to use them to improve work efficiency and handle some technical issues unrelated to specific business" in English.
