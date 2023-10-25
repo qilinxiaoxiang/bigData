@@ -1,88 +1,39 @@
-Sure, let's continue with the `ExcelFileReader` class. We'll use the `@ExcelProperty` annotation in the `ExcelData` class to map the fields to the columns in the Excel file. 
-
-1. **ExcelData.java**:
+Sure, let's implement the `convertToColumnDefinition` method. This method will convert the `ExcelData` object to a `ColumnDefinition` object. It will check the values of the "DB Column" and "ISG_File_Attribute" fields and convert the "ISG_File_Attribute" field from camel case to capital snake case if necessary.
 
 ```java
-import com.alibaba.excel.annotation.ExcelProperty;
+private ColumnDefinition convertToColumnDefinition(ExcelData data) {
+    ColumnDefinition columnDefinition = new ColumnDefinition();
+    String columnName = data.getDbColumn();
+    String columnType = data.getDatatype();
 
-public class ExcelData {
-
-    @ExcelProperty("DB Column")
-    private String dbColumn;
-
-    @ExcelProperty("Datatype")
-    private String datatype;
-
-    @ExcelProperty("ISG_File_Attribute")
-    private String isgFileAttribute;
-
-    @ExcelProperty("ISGCloud fields Datatype")
-    private String isgCloudFieldsDatatype;
-
-    @ExcelProperty("ISGCloud fields Length")
-    private String isgCloudFieldsLength;
-
-    // getters and setters
-}
-```
-
-In the `ExcelFileReader` class, we'll use the `EasyExcel.readSheet` method to read each sheet in the Excel file. The name of the sheet can be obtained from the `ReadSheet` object.
-
-2. **ExcelFileReader.java**:
-
-```java
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.read.metadata.ReadSheet;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-@Component
-public class ExcelFileReader {
-
-    public List<TableDefinition> readExcelFile(MultipartFile file) {
-        List<TableDefinition> tableDefinitions = new ArrayList<>();
-        try {
-            EasyExcel.read(file.getInputStream(), ExcelData.class, new AnalysisEventListener<ExcelData>() {
-                @Override
-                public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
-                    // Get the sheet name
-                    ReadSheet currentSheet = context.readSheetHolder().getReadSheet();
-                    String sheetName = currentSheet.getSheetName();
-                    // Create a new TableDefinition object and set the name
-                    TableDefinition tableDefinition = new TableDefinition();
-                    tableDefinition.setName(sheetName);
-                    tableDefinitions.add(tableDefinition);
-                }
-
-                @Override
-                public void invoke(ExcelData data, AnalysisContext context) {
-                    // Get the current TableDefinition object
-                    TableDefinition tableDefinition = tableDefinitions.get(tableDefinitions.size() - 1);
-                    // Convert the ExcelData object to a ColumnDefinition object and add it to the table
-                    ColumnDefinition columnDefinition = convertToColumnDefinition(data);
-                    tableDefinition.getColumns().add(columnDefinition);
-                }
-
-                @Override
-                public void doAfterAllAnalysed(AnalysisContext context) {
-                }
-            }).doReadAll();
-        } catch (IOException e) {
-            e.printStackTrace();
+    if (columnName == null || columnName.isEmpty()) {
+        columnName = data.getIsgFileAttribute();
+        if (columnName.contains(":")) {
+            columnName = columnName.split(":")[0].replaceAll("\"", "").trim();
         }
-        return tableDefinitions;
+        columnName = convertCamelCaseToSnakeCase(columnName).toUpperCase();
+        columnType = data.getIsgCloudFieldsDatatype();
+        if ("NVARCHAR2".equals(columnType)) {
+            columnType = "VARCHAR2(" + data.getIsgCloudFieldsLength() + ")";
+        }
     }
 
-    private ColumnDefinition convertToColumnDefinition(ExcelData data) {
-        // Implement the logic to convert the ExcelData object to a ColumnDefinition object
-    }
+    columnDefinition.setName(columnName);
+    columnDefinition.setDataType(columnType);
+    return columnDefinition;
+}
+
+private String convertCamelCaseToSnakeCase(String camelCase) {
+    String regex = "([a-z])([A-Z]+)";
+    String replacement = "$1_$2";
+    return camelCase.replaceAll(regex, replacement);
 }
 ```
 
-In the `invokeHeadMap` method, we're getting the name of the current sheet and creating a new `TableDefinition` object with that name. In the `invoke` method, we're getting the current `TableDefinition` object, converting the `ExcelData` object to a `ColumnDefinition` object, and adding it to the table.
+In the `convertToColumnDefinition` method, we're first checking if the "DB Column" field is empty. If it is, we're using the "ISG_File_Attribute" field instead. If the "ISG_File_Attribute" field contains a colon, we're splitting it on the colon and using the part before the colon as the column name. We're also removing any quotes from the column name. Then, we're converting the column name from camel case to snake case and converting it to upper case.
 
-In the `convertToColumnDefinition` method, you'll need to implement the logic to convert the `ExcelData` object to a `ColumnDefinition` object. This will involve checking the values of the "DB Column" and "ISG_File_Attribute" fields and converting the "ISG_File_Attribute" field from camel case to capital snake case if necessary.
+Next, we're checking the "ISGCloud fields Datatype" field. If it is "NVARCHAR2", we're changing it to "VARCHAR2" and appending the length in parentheses.
+
+Finally, we're setting the name and data type of the `ColumnDefinition` object and returning it.
+
+The `convertCamelCaseToSnakeCase` method converts a string from camel case to snake case. It uses a regular expression to find any occurrences of a lowercase letter followed by one or more uppercase letters, and replaces them with the lowercase letter, an underscore, and the uppercase letters.
