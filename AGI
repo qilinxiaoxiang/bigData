@@ -1,1 +1,213 @@
-"Embrace new technologies, such as large language models, in your spare time, and try to use them to improve work efficiency and handle some technical issues unrelated to specific business" in English.
+Sure, I can help you with that. Here's a basic structure of the classes you might need:
+
+1. **ExcelFileUploadController.java**: This class will be responsible for handling the file upload request.
+
+```java
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+public class ExcelFileUploadController {
+
+    private final ExcelFileProcessingService excelFileProcessingService;
+
+    public ExcelFileUploadController(ExcelFileProcessingService excelFileProcessingService) {
+        this.excelFileProcessingService = excelFileProcessingService;
+    }
+
+    @PostMapping("/upload")
+    public String uploadFile(@RequestParam("file") MultipartFile file) {
+        excelFileProcessingService.processExcelFile(file);
+        return "File processed successfully";
+    }
+}
+```
+
+2. **ExcelFileProcessingService.java**: This class will be responsible for processing the uploaded Excel file.
+
+```java
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+@Service
+public class ExcelFileProcessingService {
+
+    private final ExcelFileReader excelFileReader;
+    private final SqlFileWriter sqlFileWriter;
+
+    public ExcelFileProcessingService(ExcelFileReader excelFileReader, SqlFileWriter sqlFileWriter) {
+        this.excelFileReader = excelFileReader;
+        this.sqlFileWriter = sqlFileWriter;
+    }
+
+    public void processExcelFile(MultipartFile file) {
+        List<TableDefinition> tableDefinitions = excelFileReader.readExcelFile(file);
+        sqlFileWriter.writeSqlFiles(tableDefinitions);
+    }
+}
+```
+
+3. **ExcelFileReader.java**: This class will be responsible for reading the Excel file and converting it into a list of `TableDefinition` objects.
+
+```java
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+@Component
+public class ExcelFileReader {
+
+    public List<TableDefinition> readExcelFile(MultipartFile file) {
+        // Implement the logic to read the Excel file and convert it into a list of TableDefinition objects
+    }
+}
+```
+
+4. **SqlFileWriter.java**: This class will be responsible for writing the SQL files based on the list of `TableDefinition` objects.
+
+```java
+import org.springframework.stereotype.Component;
+
+@Component
+public class SqlFileWriter {
+
+    public void writeSqlFiles(List<TableDefinition> tableDefinitions) {
+        // Implement the logic to write the SQL files based on the list of TableDefinition objects
+    }
+}
+```
+
+5. **TableDefinition.java**: This class will represent the definition of a table, including its name and a list of `ColumnDefinition` objects.
+
+```java
+public class TableDefinition {
+
+    private String name;
+    private List<ColumnDefinition> columns;
+
+    // getters and setters
+}
+```
+
+6. **ColumnDefinition.java**: This class will represent the definition of a column, including its name and data type.
+
+```java
+public class ColumnDefinition {
+
+    private String name;
+    private String dataType;
+
+    // getters and setters
+}
+```
+
+Please note that this is a basic structure and you will need to implement the logic inside the `readExcelFile` method in `ExcelFileReader` and the `writeSqlFiles` method in `SqlFileWriter`. Also, you might need to add more fields to the `TableDefinition` and `ColumnDefinition` classes based on your specific requirements.
+
+
+
+Sure, let's start with the `ExcelFileReader` class. We'll use the EasyExcel library to read the Excel file. 
+
+1. **ExcelFileReader.java**:
+
+```java
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.metadata.ReadSheet;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class ExcelFileReader {
+
+    public List<TableDefinition> readExcelFile(MultipartFile file) {
+        List<TableDefinition> tableDefinitions = new ArrayList<>();
+        try {
+            EasyExcel.read(file.getInputStream(), new AnalysisEventListener<ExcelData>() {
+                @Override
+                public void invoke(ExcelData data, AnalysisContext context) {
+                    // Convert the ExcelData object to a TableDefinition object and add it to the list
+                    TableDefinition tableDefinition = convertToTableDefinition(data);
+                    tableDefinitions.add(tableDefinition);
+                }
+
+                @Override
+                public void doAfterAllAnalysed(AnalysisContext context) {
+                }
+            }).sheet().doRead();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return tableDefinitions;
+    }
+
+    private TableDefinition convertToTableDefinition(ExcelData data) {
+        // Implement the logic to convert the ExcelData object to a TableDefinition object
+    }
+}
+```
+
+In the `readExcelFile` method, we're using the `EasyExcel.read` method to read the Excel file. The `invoke` method is called for each row in the Excel file, and we're converting each row to a `TableDefinition` object and adding it to the list.
+
+The `ExcelData` class represents a row in the Excel file. You'll need to create this class and add fields for each column in the Excel file.
+
+2. **ExcelData.java**:
+
+```java
+public class ExcelData {
+
+    private String dbColumn;
+    private String datatype;
+    private String isgFileAttribute;
+    private String isgCloudFieldsDatatype;
+    private String isgCloudFieldsLength;
+
+    // getters and setters
+}
+```
+
+In the `convertToTableDefinition` method, you'll need to implement the logic to convert the `ExcelData` object to a `TableDefinition` object. This will involve checking the values of the "DB Column" and "ISG_File_Attribute" fields and converting the "ISG_File_Attribute" field from camel case to capital snake case if necessary.
+
+Next, we'll implement the `SqlFileWriter` class. We'll use the `java.io.FileWriter` class to write the SQL files.
+
+3. **SqlFileWriter.java**:
+
+```java
+import org.springframework.stereotype.Component;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+@Component
+public class SqlFileWriter {
+
+    public void writeSqlFiles(List<TableDefinition> tableDefinitions) {
+        for (TableDefinition tableDefinition : tableDefinitions) {
+            writeSqlFile(tableDefinition);
+        }
+    }
+
+    private void writeSqlFile(TableDefinition tableDefinition) {
+        try (FileWriter writer = new FileWriter("sql/" + tableDefinition.getName() + ".sql")) {
+            writer.write(generateSql(tableDefinition));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String generateSql(TableDefinition tableDefinition) {
+        StringBuilder sql = new StringBuilder("CREATE TABLE " + tableDefinition.getName() + " (\n");
+        for (ColumnDefinition column : tableDefinition.getColumns()) {
+            sql.append(column.getName()).append(" ").append(column.getDataType()).append(",\n");
+        }
+        sql.deleteCharAt(sql.length() - 2); // Remove the last comma
+        sql.append(");");
+        return sql.toString();
+    }
+}
+```
+
+In the `writeSqlFiles` method, we're iterating over the list of `TableDefinition` objects and writing a SQL file for each one. The `writeSqlFile` method writes a SQL file with the name of the table and the `.sql` extension. The `generateSql` method generates the SQL to create the table.
+
+Please note that this is a basic implementation and you might need to modify it based on your specific requirements. For example, you might need to add logic to handle different data types and to add a prefix and suffix to the SQL.
