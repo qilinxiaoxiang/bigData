@@ -59,3 +59,52 @@ conn.close();
 This code will compare the data in the two tables in a batched manner, fetching 100 rows at a time. If it finds any differences, it will write them to a report file.
 
 Please note that this is a high-level solution and the actual implementation may vary based on the specific details of your database and data. For example, if the 'a' column is not unique across the entire table, you may need to adjust the comparison logic to account for this.
+
+
+
+Sure, I can help with that.
+
+1. Yes, there is a simple solution to achieve this. You can use the SQL `MINUS` operator to compare the data between the two tables. The `MINUS` operator returns all rows in the first query that are not returned in the second query.
+
+2. Yes, the `MINUS` operator will work in this scenario. It will help you find out the differences between the two tables.
+
+3. Here are some SQL statements for creating the tables, inserting data, and comparing the data:
+
+```sql
+-- Create table test1
+CREATE TABLE test1 (
+  A TIMESTAMP(0),
+  B VARCHAR2(5),
+  C DATE,
+  D NUMBER
+);
+
+-- Create table test2
+CREATE TABLE test2 (
+  A TIMESTAMP(0),
+  B VARCHAR2(5),
+  C DATE,
+  D NUMBER,
+  E VARCHAR2(5),
+  F VARCHAR2(5)
+);
+
+-- Insert data into test1
+INSERT INTO test1 (A, B, C, D) VALUES (TO_TIMESTAMP('2023-10-27 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'test', TO_DATE('2023-10-27', 'YYYY-MM-DD'), 1);
+INSERT INTO test1 (A, B, C, D) VALUES (TO_TIMESTAMP('2023-10-28 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'test', TO_DATE('2023-10-28', 'YYYY-MM-DD'), 2);
+
+-- Insert data into test2
+INSERT INTO test2 (A, B, C, D, E, F) VALUES (TO_TIMESTAMP('2023-10-27 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'test', TO_DATE('2023-10-27', 'YYYY-MM-DD'), 1, 'test', 'test');
+INSERT INTO test2 (A, B, C, D, E, F) VALUES (TO_TIMESTAMP('2023-10-28 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'test', TO_DATE('2023-10-28', 'YYYY-MM-DD'), 2, 'test', 'test');
+
+-- Compare data between test1 and test2
+(SELECT A, B, C FROM test1
+MINUS
+SELECT A, B, C FROM test2)
+UNION ALL
+(SELECT A, B, C FROM test2
+MINUS
+SELECT A, B, C FROM test1);
+```
+
+The last SQL statement will return the rows that are in `test1` but not in `test2`, and the rows that are in `test2` but not in `test1`. If there are no differences, it will return an empty result set.
