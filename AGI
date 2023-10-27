@@ -1,5 +1,61 @@
-private String convertCamelCaseToSnakeCase(String camelCase) {
-    String regex = "(?<=[a-z])[A-Z]|(?<=[A-Z])[A-Z](?=[a-z])";
-    String replacement = "_$0";
-    return camelCase.replaceAll(regex, replacement).toUpperCase();
+Solution Design:
+
+1. **Database Design**: We have two tables A and B. Table A has columns a, b, c and Table B has columns a, b, c, d, e. The column 'a' is unique for each record in both tables.
+
+2. **Data Comparison**: We will use a cursor to fetch and compare data from both tables in a batched manner. This will prevent loading all data into memory at once.
+
+3. **Report Generation**: If there are any differences found between the data in the tables, we will generate a report and save it in a specified folder.
+
+Here is a high-level pseudo code for the solution:
+
+```java
+// Establish database connection
+Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+// Prepare SQL statements
+String sqlA = "SELECT a, b, c FROM TableA ORDER BY a";
+String sqlB = "SELECT a, b, c FROM TableB ORDER BY a";
+
+// Create cursors
+Statement stmtA = conn.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+stmtA.setFetchSize(100); // Fetch 100 rows at a time
+ResultSet rsA = stmtA.executeQuery(sqlA);
+
+Statement stmtB = conn.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+stmtB.setFetchSize(100); // Fetch 100 rows at a time
+ResultSet rsB = stmtB.executeQuery(sqlB);
+
+// Open file for report
+FileWriter reportFile = new FileWriter("path/to/report.txt");
+
+// Compare data
+while (rsA.next() && rsB.next()) {
+    String aA = rsA.getString("a");
+    String bA = rsA.getString("b");
+    String cA = rsA.getString("c");
+
+    String aB = rsB.getString("a");
+    String bB = rsB.getString("b");
+    String cB = rsB.getString("c");
+
+    if (!aA.equals(aB) || !bA.equals(bB) || !cA.equals(cB)) {
+        // Write differences to report
+        reportFile.write("Difference found for record with a = " + aA + "\n");
+        reportFile.write("TableA: a = " + aA + ", b = " + bA + ", c = " + cA + "\n");
+        reportFile.write("TableB: a = " + aB + ", b = " + bB + ", c = " + cB + "\n");
+        reportFile.write("\n");
+    }
 }
+
+// Close resources
+rsA.close();
+stmtA.close();
+rsB.close();
+stmtB.close();
+reportFile.close();
+conn.close();
+```
+
+This code will compare the data in the two tables in a batched manner, fetching 100 rows at a time. If it finds any differences, it will write them to a report file.
+
+Please note that this is a high-level solution and the actual implementation may vary based on the specific details of your database and data. For example, if the 'a' column is not unique across the entire table, you may need to adjust the comparison logic to account for this.
