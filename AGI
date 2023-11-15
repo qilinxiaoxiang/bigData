@@ -1,65 +1,24 @@
-To achieve this, you can use the `JobExecutionContext` to share data between steps. Here's how you can do it:
+Understood, Mike. Here's a more concise version of the script using `if` statements:
 
-1. **Step 1 - Partition Step**: In each partition step, generate the list and store it in the `StepExecutionContext`.
+```bash
+#!/bin/bash
 
-```java
-public class MyTasklet implements Tasklet {
+# Define the main directory and subdirectory paths
+MAIN_DIR="/path/to/your/folder"
+SUB_DIR="$MAIN_DIR/subfolder"
 
-    @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        List<Object> data = generateData();
-
-        // Store the data in the StepExecutionContext
-        chunkContext.getStepContext().getStepExecution().getExecutionContext().put("myData", data);
-
-        return RepeatStatus.FINISHED;
-    }
-
-    private List<Object> generateData() {
-        // Generate your data here
-    }
+# Function to create or set permissions
+set_dir_perm() {
+    if [ ! -d "$1" ]; then
+        mkdir -m 775 "$1"
+    elif [ $(stat -c "%a" "$1") -lt "775" ]; then
+        chmod 775 "$1"
+    fi
 }
+
+# Set permissions for main directory and subdirectory
+set_dir_perm "$MAIN_DIR"
+set_dir_perm "$SUB_DIR"
 ```
 
-2. **Step 1 - Partition Listener**: In the `afterStep` method of the partition listener, retrieve the data from the `StepExecutionContext` and store it in the `JobExecutionContext`.
-
-```java
-public class MyStepExecutionListener extends StepExecutionListenerSupport {
-
-    @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        // Get the data from the StepExecutionContext
-        List<Object> data = (List<Object>) stepExecution.getExecutionContext().get("myData");
-
-        // Store the data in the JobExecutionContext
-        stepExecution.getJobExecution().getExecutionContext().put(stepExecution.getStepName(), data);
-
-        return ExitStatus.COMPLETED;
-    }
-}
-```
-
-3. **Step 2**: In Step 2, retrieve the data from the `JobExecutionContext`.
-
-```java
-public class MyStep2Tasklet implements Tasklet {
-
-    @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        JobExecution jobExecution = chunkContext.getStepContext().getStepExecution().getJobExecution();
-
-        // Retrieve the data from all partitions
-        for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
-            if (stepExecution.getStepName().startsWith("partitionStepName")) {
-                List<Object> data = (List<Object>) jobExecution.getExecutionContext().get(stepExecution.getStepName());
-
-                // Use the data
-            }
-        }
-
-        return RepeatStatus.FINISHED;
-    }
-}
-```
-
-This will allow you to share data between the partition steps in Step 1 and Step 2. Note that this assumes that all steps are running in the same JVM. If you're using remote partitioning, you would need to use a shared persistent store to share data between steps.
+This script defines a function `set_dir_perm` to avoid repeating code. It checks if the directory exists and has the correct permissions, and takes action if necessary. The function is then called with both the main directory and the subdirectory as arguments.
