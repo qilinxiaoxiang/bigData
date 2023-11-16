@@ -1,24 +1,29 @@
-Understood, Mike. Here's a more concise version of the script using `if` statements:
+public class SnakeToCamelCase {
+    public static void main(String[] args) {
+        String snakeCase = "HELLO_WORLD_EXAMPLE";
+        String camelCase = convertToCamelCase(snakeCase);
+        System.out.println(camelCase); // 输出：HelloWorldExample
+    }
 
-```bash
-#!/bin/bash
+    public static String convertToCamelCase(String snakeCase) {
+        StringBuilder camelCaseBuilder = new StringBuilder();
+        boolean shouldCapitalize = true;
 
-# Define the main directory and subdirectory paths
-MAIN_DIR="/path/to/your/folder"
-SUB_DIR="$MAIN_DIR/subfolder"
+        for (int i = 0; i < snakeCase.length(); i++) {
+            char currentChar = snakeCase.charAt(i);
 
-# Function to create or set permissions
-set_dir_perm() {
-    if [ ! -d "$1" ]; then
-        mkdir -m 775 "$1"
-    elif [ $(stat -c "%a" "$1") -lt "775" ]; then
-        chmod 775 "$1"
-    fi
+            if (currentChar == '_') {
+                shouldCapitalize = true;
+            } else {
+                if (shouldCapitalize) {
+                    camelCaseBuilder.append(Character.toUpperCase(currentChar));
+                    shouldCapitalize = false;
+                } else {
+                    camelCaseBuilder.append(Character.toLowerCase(currentChar));
+                }
+            }
+        }
+
+        return camelCaseBuilder.toString();
+    }
 }
-
-# Set permissions for main directory and subdirectory
-set_dir_perm "$MAIN_DIR"
-set_dir_perm "$SUB_DIR"
-```
-
-This script defines a function `set_dir_perm` to avoid repeating code. It checks if the directory exists and has the correct permissions, and takes action if necessary. The function is then called with both the main directory and the subdirectory as arguments.
