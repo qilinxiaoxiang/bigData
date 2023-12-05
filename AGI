@@ -1,29 +1,21 @@
-public class SnakeToCamelCase {
-    public static void main(String[] args) {
-        String snakeCase = "HELLO_WORLD_EXAMPLE";
-        String camelCase = convertToCamelCase(snakeCase);
-        System.out.println(camelCase); // 输出：HelloWorldExample
-    }
+When you use the `mkdir` command with the `-m` option to set the mode (permissions), it only applies to the last directory in the given path. In your case, you've specified `a/b`, so the `-m775` option only applies to the `b` directory, not to `a`.
 
-    public static String convertToCamelCase(String snakeCase) {
-        StringBuilder camelCaseBuilder = new StringBuilder();
-        boolean shouldCapitalize = true;
+The `a` directory is created with the default permissions defined by your user's umask. The umask value specifies which permissions should be masked out or not set when new files and directories are created. If your umask is `022` (which is common), it would create directories with `755` permissions by default (`777` minus `022` equals `755`).
 
-        for (int i = 0; i < snakeCase.length(); i++) {
-            char currentChar = snakeCase.charAt(i);
+To ensure that each directory level gets the `775` permissions, you would need to set the umask before running the `mkdir` command or explicitly change the permissions of each directory after creation.
 
-            if (currentChar == '_') {
-                shouldCapitalize = true;
-            } else {
-                if (shouldCapitalize) {
-                    camelCaseBuilder.append(Character.toUpperCase(currentChar));
-                    shouldCapitalize = false;
-                } else {
-                    camelCaseBuilder.append(Character.toLowerCase(currentChar));
-                }
-            }
-        }
+Here's how you can set the umask to `002` before running `mkdir`, which would result in directories being created with `775` permissions:
 
-        return camelCaseBuilder.toString();
-    }
-}
+```bash
+umask 002
+mkdir -p a/b/c/d
+```
+
+Alternatively, you can use the `find` command to set the permissions for all directories after they have been created:
+
+```bash
+mkdir -p a/b/c/d
+find a -type d -exec chmod 775 {} +
+```
+
+This `find` command will search for all directories (`-type d`) starting from `a` and execute (`-exec`) the `chmod 775` command on each of them. The `{}` is a placeholder for the directory names that `find` locates, and the `+` at the end tells `find` to run `chmod` with as many directory names as possible in one go, which is more efficient than running `chmod` separately for each directory.
