@@ -1,21 +1,24 @@
-When you use the `mkdir` command with the `-m` option to set the mode (permissions), it only applies to the last directory in the given path. In your case, you've specified `a/b`, so the `-m775` option only applies to the `b` directory, not to `a`.
+1. create a folder with several levels. Like mkdir -p /a/b/c/d 
+2. If any level of the folder is already there, no operation needed.
+3. If any level of the folder is absent, create it and give permission 775.
 
-The `a` directory is created with the default permissions defined by your user's umask. The umask value specifies which permissions should be masked out or not set when new files and directories are created. If your umask is `022` (which is common), it would create directories with `755` permissions by default (`777` minus `022` equals `755`).
+#!/bin/bash
 
-To ensure that each directory level gets the `775` permissions, you would need to set the umask before running the `mkdir` command or explicitly change the permissions of each directory after creation.
+# The desired directory structure
+DIR="/a/b/c/d"
 
-Here's how you can set the umask to `002` before running `mkdir`, which would result in directories being created with `775` permissions:
+# The permission we want to set
+PERMISSIONS=775
 
-```bash
-umask 002
-mkdir -p a/b/c/d
-```
-
-Alternatively, you can use the `find` command to set the permissions for all directories after they have been created:
-
-```bash
-mkdir -p a/b/c/d
-find a -type d -exec chmod 775 {} +
-```
-
-This `find` command will search for all directories (`-type d`) starting from `a` and execute (`-exec`) the `chmod 775` command on each of them. The `{}` is a placeholder for the directory names that `find` locates, and the `+` at the end tells `find` to run `chmod` with as many directory names as possible in one go, which is more efficient than running `chmod` separately for each directory.
+# Create the directory structure with the correct permissions
+IFS='/' # Internal Field Separator set to '/'
+read -ra ADDR <<< "$DIR" # Read the directory structure into an array as tokens separated by IFS
+path=""
+for dir in "${ADDR[@]}"; do
+    path+="/$dir" # Construct each level of the path
+    if [ ! -d "$path" ]; then # Check if the directory does not exist
+        mkdir -m $PERMISSIONS "$path" # Create the directory with the specified permissions
+    else
+        chmod $PERMISSIONS "$path" # If the directory exists, just change the permissions
+    fi
+done
