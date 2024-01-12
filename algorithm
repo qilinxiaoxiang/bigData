@@ -1,0 +1,739 @@
+# 算法学习的误区
+1. 只看书不动手
+2. 两个极端
+    1. 看题解刷题: 看似速度快, 做得题多, 实际上抛开题解, 自己没有思路
+    2. 坚决不看题解, 自己死抠: 陷入自己原有的思路里, 学不到高票题解、高票代码的优秀思路
+3. (最大误区)Leetcode每题只做一遍, 或者Leetcode随机刷综合题
+    - 三刷
+    - 五刷
+4. 面对一道题, 拿学过的算法挨个试解
+    1. 剖析题目关键点→回想学过的模型→根据特征找到算法
+    2. 题目特征驱动算法, 而不是猜测算法试解题目
+5. 什么都追求"理解"
+    1. 放低身段, 用鹦鹉学舌的姿势, 不"理解"别强求, 只要能够一葫芦画瓢地去解题、考试就够了.
+    2. (五毒神掌)敢于放手、敢于死记硬背代码
+    3. 面试不会超过1小时, 一小时能做出来的东西, 再复杂也有限.
+
+# 刷题
+1. 三刷
+    1. 一刷: 每个"小类别"的代表性题目, 各刷几道
+        - 此时如果需要看题解, 很正常
+    2. 二刷: 复习代表性题目
+        - "小类别"合成"大类别", 刷该分类更多的题目, 举一反三, 在尽量少的提示下完成
+    3. 三刷: 综合性题目
+        - 尽量独立实现+测试
+2. 五步
+    1. 理解题面
+        1. 想一想更多的例子和测试数据, 看看有没有遗漏的地方
+        2. 提炼题目中的关键信息、变化信息
+        3. 面试的时候, 跟面试官确认自己的理解
+    2. 部分实现
+        1. 无论什么题目, 先尝试实现一个朴素解法
+        2. 或者实现一个部分场景下的解法, 再尽量让自己的解法更优, 覆盖更多的场景
+    3. 有提示解答
+        1. 看提示≠看题解, 可以看题解的一部分(题目类别、题解标题、时间复杂度等), 试试能否找到突破口
+        2. 面试是一个交互性的过程, 你可以与面试官交流获取适当的提示, 要明白面试官在引导你什么, 这就要从平时练起
+    4. 独立解题
+    5. 写题解
+        1. 尝试给别人讲(面试的时候也是要讲的), 尝试分析对比各种不同解法的优劣
+        2. 题解也可以写成日记的形式, 记录自己遇到的难点
+        3. 有助于加深自己的理解, 以后也可以回看自己的题解, 快速复习
+3. 五刷
+    1. 一刷
+        1. 5分钟: 读题+思考
+        2. 直接看解法, 注意比较解法优劣
+        3. 背诵、默写好的解法
+    2. 二刷
+        1. 马上自己写, leetcode提交
+        2. 多解法比较、体会、优化
+    3. 三刷
+        1. 一天后, 重复做题
+        2. 不同解法的熟练程度→专项练习
+    4. 四刷
+        1. 一周后, 反复回来练习相同题目
+    5. 五刷
+        1. 面试前一周恢复性训练
+
+
+# 动态规划
+1. 递归的过程就是一个树形结构. 它采用了深度优先搜索的策略, 去搜索所有可能的组合, 并得到最优解的最优化问题.
+    - 递归赋予了回溯可以回退一步的能力, 它通过堆栈保存了上一步的状态, 所以如果想用回溯策略来解决问题, 那么递归应该是你的首选方法.
+2. 优化暴力递归: 剪枝与优化
+    1. 贪心算法+回溯
+    2. 从解空间图解释, 通过将重叠子问题保存起来, 空间换时间
+3. 动态规划问题的三个特征
+    1. 重叠子问题: 在穷举的过程中, 存在重复计算的现象
+    2. 无后效性: 子问题之间的依赖是单向的, 某阶段状态一旦确定, 就不受后续决策的影响.
+    3. 最优子结构: 子问题之间必须相互独立, 或者说后续的计算可以通过前面的状态推导出来.
+4. 动态转移方程
+    1. 初始化状态: 任何穷举算法都需要一个终止条件, 在动态规划中, 我们将其称之为初始化状态.
+    2. 状态参数: 是一个不断逼近初始化状态的变量. 这个不断逼近的过程, 叫做状态转移.
+    3. 决策: 能够造成状态转移的操作, 叫做决策. 这是动态规划的核心参数.
+    4. 状态转移方程: 初始化状态→确定状态参数→设计决策
+5. 带备忘录的递归算法
+    1. 递归基于堆栈, 每一次函数调用代价高昂
+    2. 自顶向下, 每次都需要查询子问题是否已经被计算过了.
+6. 动态规划的转移优化思想
+    1. 分离状态变量和决策变量. 当循环多余两重时, 关注最里边的两重循环, 把外层看作定值.
+    2. 对于一个状态变量, 决策变量的取值范围称为"决策候选集合", 观察这个集合随着状态变量的变化情况. 一旦发现冗余, 或者有更高效维护"候选集合"的数据结构, 就可以省去一层循环扫描.
+
+
+# 1. 数组、链表、栈、队列
+1. https://leetcode-cn.com/problems/merge-sorted-array/
+    - 20211030
+    - 20211031
+    - 20211106
+    - 20220321
+2. https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/
+    - 20211030
+    - 20211031
+    - 20211106
+    - 20220321
+3. https://leetcode-cn.com/problems/move-zeroes/
+    - 20211030
+    - 20211031
+    - 20211106
+    - 20220321
+4. https://leetcode-cn.com/problems/reverse-linked-list/
+    - 20211031
+    - 20211101
+    - 20211107
+    - 20220323
+    - 20220413
+    - 20220609
+5. https://leetcode-cn.com/problems/reverse-nodes-in-k-group/
+    - 20211031
+    - 20211101
+    - 20211107
+    - 20220413
+    - 20220609
+6. https://www.acwing.com/problem/content/description/138/ #邻值查找
+7. https://leetcode-cn.com/problems/linked-list-cycle/
+    - 20211101
+    - 20211102
+    - 20211108
+    - 20220609
+8. https://leetcode-cn.com/problems/linked-list-cycle-ii/
+    - 20211101
+    - 20211102
+    - 20211108
+    - 20220609
+9. https://leetcode-cn.com/problems/valid-parentheses/
+    - 20211102
+    - 20211103
+    - 20211109
+    - 20220609
+10. https://leetcode-cn.com/problems/min-stack/
+    - 20211102
+    - 20211103
+    - 20211109
+    - 20220609
+11. https://leetcode-cn.com/problems/evaluate-reverse-polish-notation/
+    - 20211103
+    - 20211104
+    - 20211110
+    - 20220609
+12. https://leetcode-cn.com/problems/merge-two-sorted-lists/
+    - 20211103
+    - 20211104
+    - 20211110
+13. https://leetcode-cn.com/problems/plus-one/solution/jia-yi-by-leetcode-solution-2hor/
+    - 20211103
+    - 20211104
+    - 20211110
+
+
+# 2. 前缀和、差分、双指针扫描
+1. https://leetcode-cn.com/problems/count-number-of-nice-subarrays/
+    - 20211104
+    - 20211105
+    - 20211111
+2. https://leetcode-cn.com/problems/range-sum-query-2d-immutable/
+    - 20211105
+    - 20211106
+    - 20211111
+3. https://leetcode-cn.com/problems/corporate-flight-bookings/
+    - 20211105
+    - 20211106
+    - 20211111
+4. https://leetcode-cn.com/problems/maximum-subarray/
+    - 20211106
+    - 20211107
+    - 20211115
+5. https://leetcode-cn.com/problems/two-sum/
+    - 20211107
+    - 20211108
+    - 20211116
+6. https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/
+    - 20211107
+    - 20211108
+    - 20211116
+7. https://leetcode-cn.com/problems/3sum/
+    - 20211107
+    - 20211108
+    - 20211116
+8. https://leetcode-cn.com/problems/container-with-most-water/
+    - 20211108
+    - 20211109
+    - 20211117
+9. https://leetcode-cn.com/problems/largest-rectangle-in-histogram/
+    - 20211108
+    - 20211109
+    - 20211117
+10. https://leetcode-cn.com/problems/sliding-window-maximum/
+    - 20211109
+    - 20211110
+    - 20211118
+11. https://leetcode-cn.com/problems/trapping-rain-water/
+    - 20211110
+    - 20211111
+    - 20211119
+12. https://leetcode-cn.com/problems/subarray-sum-equals-k/
+    - 20211110
+    - 20211111
+    - 20211119
+
+# 哈希表、集合、映射
+1. https://leetcode-cn.com/problems/walking-robot-simulation/
+    - 20211111
+    - 20211112
+    - 20211120
+2. https://leetcode-cn.com/problems/group-anagrams/
+    - 20211111
+    - 20211112
+    - 20211120
+3. https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/
+    - 20211111
+    - 20211112
+    - 20211120
+4. https://leetcode-cn.com/problems/lru-cache/
+    - 20211112
+    - 20211115
+    - 20211122
+
+# 递归、分治
+1. https://leetcode-cn.com/problems/subsets/submissions/
+    - 20211115
+    - 20211116
+    - 20211126
+2. https://leetcode-cn.com/problems/combinations/
+    - 20211115
+    - 20211116
+    - 20211126
+3. https://leetcode-cn.com/problems/permutations/
+    - 20211116
+    - 20211117
+    - 20211127
+4. https://leetcode-cn.com/problems/permutations-ii/
+    - 20211116
+    - 20211117
+    - 20211127
+5. https://leetcode-cn.com/problems/invert-binary-tree/
+    - 20211117
+    - 20211118
+    - 20211129
+6. https://leetcode-cn.com/problems/validate-binary-search-tree/
+    - 20211117
+    - 20211118
+    - 20211129
+7. https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/
+    - 20211118
+    - 20211119
+    - 20211130
+8. https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/
+    - 20211118
+    - 20211119
+    - 20211130
+9. https://leetcode-cn.com/problems/powx-n/
+    - 20211118
+    - 20211119
+    - 20211130
+10. https://leetcode-cn.com/problems/generate-parentheses/
+    - 20211119
+    - 20211120
+    - 20211201
+11. https://leetcode-cn.com/problems/merge-k-sorted-lists/
+    - 20211119
+    - 20211120
+    - 20211201
+
+# 树与图
+1. https://leetcode-cn.com/problems/n-ary-tree-level-order-traversal/
+    - 20211120
+    - 20211122
+    - 20211202
+2. https://leetcode-cn.com/problems/binary-tree-inorder-traversal/
+    - 20211120
+    - 20211122
+    - 20211202
+3. https://leetcode-cn.com/problems/n-ary-tree-preorder-traversal/
+    - 20211120
+    - 20211122
+    - 20211202
+4. https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/
+    - 20211122
+    - 20211126
+5. https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
+    - 20211122
+    - 20211126
+    - 20211203
+6. https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/
+    - 20211122
+    - 20211126
+    - 20211203
+7. https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/
+    - 20211126
+    - 20211127
+    - 20211203
+8. https://leetcode-cn.com/problems/course-schedule/
+    - 20211127
+    - 20211129
+    - 20211206
+9. https://leetcode-cn.com/problems/course-schedule-ii/
+    - 20211127
+    - 20211129
+    - 20211206
+10. https://leetcode-cn.com/problems/redundant-connection/
+    - 20211129
+    - 20211130
+    - 20211208
+
+# DFS与BFS
+- DFS, 状态作为参数, 确定递归边界, 注意还原现场
+- BFS, 状态用队列保存
+- 考虑是否需要判重
+
+1. https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/
+    - 20211130
+    - 20211201
+    - 20211209
+2. https://leetcode-cn.com/problems/n-queens/
+    - 20211130
+    - 20211201
+    - 20211209
+3. https://leetcode-cn.com/problems/number-of-islands/
+    - 20211201
+    - 20211202
+    - 20211210
+4. https://leetcode-cn.com/problems/surrounded-regions/
+    - 20211201
+    - 20211202
+    - 20211210
+5. https://leetcode-cn.com/problems/minimum-genetic-mutation/
+    - 20211202
+    - 20211203
+    - 20211211
+6. https://leetcode-cn.com/problems/longest-increasing-path-in-a-matrix/
+    - 20211202
+    - 20211203
+    - 20211211
+
+# 二叉堆、二叉搜索树
+1. https://leetcode-cn.com/problems/merge-k-sorted-lists/
+    - 20211203
+    - 20211206
+    - 20211213
+2. https://leetcode-cn.com/problems/sliding-window-maximum/
+    - 20211203
+    - 20211206
+    - 20211213
+3. https://leetcode-cn.com/problems/insert-into-a-binary-search-tree/
+    - 20211206
+    - 20211208
+    - 20211214
+4. https://leetcode-cn.com/problems/successor-lcci/
+    - 20211206
+    - 20211208
+    - 20211214
+5. https://leetcode-cn.com/problems/convert-bst-to-greater-tree/
+    - 20211208
+    - 20211209
+    - 20211215
+6. https://leetcode-cn.com/problems/delete-node-in-a-bst/
+    - 20211208
+    - 20211209
+    - 20211215
+
+# 二分
+1. https://leetcode-cn.com/problems/binary-search/
+    - 20211209
+    - 20211210
+    - 20211216
+2. https://leetcode-cn.com/problems/find-first-and-last-position-of-element-in-sorted-array/
+    - 20211210
+    - 20211211
+    - 20211217
+3. https://leetcode-cn.com/problems/sqrtx/
+    - 20211210
+    - 20211211
+    - 20211217
+4. https://leetcode-cn.com/problems/search-a-2d-matrix/
+    - 20211211
+    - 20211213
+    - 20211220
+5. https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/
+    - 20211213
+    - 20211214
+    - 20211221
+6. https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array-ii/
+    - 20211213
+    - 20211214
+    - 20211221
+7. https://leetcode-cn.com/problems/find-peak-element/
+    - 20211214
+    - 20211215
+    - 20211222
+8. https://leetcode-cn.com/problems/guess-number-higher-or-lower/
+    - 20211215
+    - 20211216
+    - 20211223
+9. https://leetcode-cn.com/problems/split-array-largest-sum/
+    - 20211215
+    - 20211216
+    - 20211223
+10. https://leetcode-cn.com/problems/minimum-number-of-days-to-make-m-bouquets/
+    - 20211216
+    - 20211217
+    - 20211224
+11. https://leetcode-cn.com/problems/capacity-to-ship-packages-within-d-days/
+    - 20211216
+    - 20211217
+    - 20211224
+12. https://leetcode-cn.com/problems/online-election/
+    - 20211217
+    - 20211220
+    - 20211225
+13. https://leetcode-cn.com/problems/koko-eating-bananas/
+    - 20211217
+    - 20211220
+    - 20211225
+
+# 排序
+1. https://leetcode-cn.com/problems/sort-an-array/
+    - 20211220
+    - 20211221
+    - 20211227
+2. https://leetcode-cn.com/problems/relative-sort-array/
+    - 20211220
+    - 20211221
+    - 20211227
+3. https://leetcode-cn.com/problems/merge-intervals/
+    - 20211221
+    - 20211222
+    - 20211228
+4. https://leetcode-cn.com/problems/kth-largest-element-in-an-array/
+    - 20211221
+    - 20211222
+    - 20211228
+5. https://www.acwing.com/problem/content/description/106/
+    - 20211222
+    - 20211223
+    - 20211230
+6. https://leetcode-cn.com/problems/reverse-pairs/
+    - 20211222
+    - 20211223
+    - 20211230
+7. https://leetcode-cn.com/problems/lemonade-change/
+    - 20211223
+    - 20211224
+    - 20220104
+8. https://leetcode-cn.com/problems/assign-cookies/
+    - 20211223
+    - 20211224
+    - 20220104
+9. https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/
+    - 20211224
+    - 20211225
+    - 20220105
+10. https://leetcode-cn.com/problems/jump-game-ii/
+    - 20211224
+    - 20211225
+    - 20220105
+11. https://leetcode-cn.com/problems/minimum-initial-energy-to-finish-tasks/
+    - 20211225
+    - 20211227
+    - 20220106
+
+# 动态规划
+1. https://leetcode-cn.com/problems/unique-paths-ii/
+    - 20211227
+    - 20211228
+    - 20220107
+2. https://leetcode-cn.com/problems/longest-common-subsequence/
+    - 20211228
+    - 20211230
+    - 20220110
+3. https://leetcode-cn.com/problems/longest-increasing-subsequence/
+    - 20211228
+    - 20211230
+    - 20220110
+4. https://leetcode-cn.com/problems/maximum-subarray/
+    - 20211230
+    - 20220104
+    - 20220111
+5. https://leetcode-cn.com/problems/maximum-product-subarray/
+    - 20211230
+    - 20220104
+    - 20220111
+6. https://leetcode-cn.com/problems/climbing-stairs/
+    - 20220104
+    - 20220105
+    - 20220113
+7. https://leetcode-cn.com/problems/triangle/
+    - 20220104
+    - 20220105
+    - 20220113
+8. https://leetcode-cn.com/problems/number-of-longest-increasing-subsequence/
+    - 20220105
+    - 20220106
+    - 20220113
+9. https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/
+    - 20220106
+    - 20220107
+    - 20220114
+10. https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iv/
+    - 20220107
+    - 20220110
+    - 20220117
+11. https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/
+    - 20220107
+    - 20220110
+    - 20220117
+12. https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/
+    - 20220110
+    - 20220111
+    - 20220118
+13. https://leetcode-cn.com/problems/house-robber/
+    - 20220111
+    - 20220112
+    - 20220119
+14. https://leetcode-cn.com/problems/house-robber-ii/
+    - 20220111
+    - 20220112
+    - 20220119
+15. https://leetcode-cn.com/problems/edit-distance/
+    - 20220112
+    - 20220113
+    - 20220120
+16. https://leetcode-cn.com/problems/partition-equal-subset-sum/
+    - 20220112
+    - 20220113
+    - 20220120
+17. https://leetcode-cn.com/problems/coin-change-2/
+    - 20220113
+    - 20220114
+    - 20220124
+18. https://leetcode-cn.com/problems/perfect-squares/
+    - 20220113
+    - 20220114
+    - 20220124
+19. https://leetcode-cn.com/problems/jump-game/
+    - 20220114
+    - 20220117
+    - 20220125
+20. https://leetcode-cn.com/problems/jump-game-ii/
+    - 20220114
+    - 20220117
+    - 20220125
+21. https://leetcode-cn.com/problems/max-value-of-equation/
+    - 20220117
+    - 20220118
+    - 20220126
+22. https://leetcode-cn.com/problems/maximum-sum-circular-subarray/
+    - 20220118
+    - 20220119
+    - 20220127
+23. https://leetcode-cn.com/problems/burst-balloons/
+    - 20220118
+    - 20220119
+    - 20220127
+24. https://leetcode-cn.com/problems/house-robber-iii/
+    - 20220119
+    - 20220120
+    - 20220128
+25. https://leetcode-cn.com/problems/longest-palindromic-subsequence/
+    - 20220120
+    - 20220124
+    - 20220129
+26. https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/
+    - 20220120
+    - 20220124
+    - 20220129
+
+# 字典树&并查集
+1. https://leetcode-cn.com/problems/implement-trie-prefix-tree/
+    - 20220124
+    - 20220125
+    - 20220207
+2. https://leetcode-cn.com/problems/word-search-ii/
+    - 20220124
+    - 20220125
+    - 20220207
+3. https://leetcode-cn.com/problems/number-of-provinces/
+    - 20220125
+    - 20220126
+    - 20220208
+4. https://leetcode-cn.com/problems/surrounded-regions/
+    - 20220125
+    - 20220126
+    - 20220208
+5. https://www.acwing.com/problem/content/description/147/
+    - 20220126
+    - 20220127
+    - 20220209
+6. https://leetcode-cn.com/problems/number-of-islands/
+    - 20220127
+    - 20220128
+    - 20220210
+7. https://leetcode-cn.com/problems/redundant-connection/
+    - 20220127
+    - 20220128
+    - 20220210
+
+# 图论算法
+1. https://leetcode-cn.com/problems/network-delay-time/
+    - 20220128
+    - 20220129
+    - 20220212
+2. https://www.acwing.com/problem/content/description/852/
+    - 20220129
+    - 20220207
+    - 20220213
+3. https://leetcode-cn.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/
+    - 20220207
+    - 20220208
+    - 20220214
+4. https://leetcode-cn.com/problems/min-cost-to-connect-all-points/
+    - 20220208
+    - 20220209
+    - 20220216
+
+# 字符串
+1. 简单题
+    1. https://leetcode-cn.com/problems/to-lower-case/
+        - 20220209
+        - 20220210
+        - 20220218
+    2. https://leetcode-cn.com/problems/length-of-last-word/
+        - 20220209
+        - 20220210
+        - 20220218
+    3. https://leetcode-cn.com/problems/jewels-and-stones/
+        - 20220209
+        - 20220210
+        - 20220218
+    4. https://leetcode-cn.com/problems/first-unique-character-in-a-string/
+        - 20220209
+        - 20220210
+        - 20220218
+    5. https://leetcode-cn.com/problems/longest-common-prefix/description/
+        - 20220209
+        - 20220210
+        - 20220218
+    6. https://leetcode-cn.com/problems/reverse-string/
+        - 20220210
+        - 20220212
+        - 20220221
+    7. https://leetcode-cn.com/problems/reverse-string-ii/
+        - 20220210
+        - 20220212
+        - 20220221
+    8. https://leetcode-cn.com/problems/reverse-words-in-a-string/
+        - 20220210
+        - 20220212
+        - 20220221
+    9. https://leetcode-cn.com/problems/reverse-words-in-a-string-iii/
+        - 20220210
+        - 20220212
+        - 20220221
+    10. https://leetcode-cn.com/problems/reverse-only-letters/
+        - 20220210
+        - 20220212
+        - 20220221
+2. https://leetcode-cn.com/problems/string-to-integer-atoi/
+    - 20220212
+    - 20220213
+    - 20220222
+3. https://leetcode-cn.com/problems/implement-strstr/
+    - 20220213
+    - 20220214
+    - 20220228
+4. https://leetcode-cn.com/problems/repeated-string-match/
+    - 20220213
+    - 20220214
+    - 20220228
+5. https://leetcode-cn.com/problems/valid-palindrome/
+    - 20220214
+    - 20220216
+    - 20220301
+6. https://leetcode-cn.com/problems/valid-palindrome-ii/
+    - 20220214
+    - 20220216
+    - 20220301
+7. https://leetcode-cn.com/problems/longest-palindromic-substring/
+    - 20220214
+    - 20220216
+    - 20220301
+8. 异位词
+    1. https://leetcode-cn.com/problems/isomorphic-strings/
+        - 20220216
+        - 20220218
+        - 20220302
+    2. https://leetcode-cn.com/problems/valid-anagram/
+        - 20220216
+        - 20220218
+        - 20220302
+    3. https://leetcode-cn.com/problems/group-anagrams/
+        - 20220216
+        - 20220218
+        - 20220302
+    4. https://leetcode-cn.com/problems/find-all-anagrams-in-a-string/
+        - 20220216
+        - 20220218
+        - 20220302
+9. https://leetcode-cn.com/problems/regular-expression-matching/
+    - 20220218
+    - 20220221
+    - *20220222
+    - 20220307
+10. https://leetcode-cn.com/problems/wildcard-matching/
+    - 20220221
+    - 20220222
+    - 20220307
+11. https://leetcode-cn.com/problems/distinct-subsequences/
+    - 20220222
+    - 20220228
+    - 20220308
+
+# 高级搜索
+1. https://leetcode-cn.com/problems/valid-sudoku/
+    - 20220228
+    - 20220301
+    - 20220314
+2. https://leetcode-cn.com/problems/sudoku-solver/
+    - 20220301
+    - 20220302
+    - 20220321
+3. https://leetcode-cn.com/problems/word-ladder/
+    - 20220302
+    - 20220307
+    - 20220323
+
+# 线段树
+1. https://leetcode-cn.com/problems/range-sum-query-mutable/, 树状数组
+    - *20220307, 研究了一半
+    - 20220308
+    - 20220314
+2. https://leetcode-cn.com/problems/range-sum-query-mutable/, 线段树
+    - 20220314
+    - 20220321
+
+# 位运算
+1. https://leetcode-cn.com/problems/number-of-1-bits/
+    - 20220323
+    - 20220413
+2. https://leetcode-cn.com/problems/power-of-two/
+    - 20220323
+    - 20220413
+3. https://leetcode-cn.com/problems/reverse-bits/
+    - 20220323
