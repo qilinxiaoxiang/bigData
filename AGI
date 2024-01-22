@@ -1,2 +1,30 @@
+#!/bin/bash
 
-"When designing a framework, whether a feature should be adopted is never a matter of necessity. Fundamentally, all the work done by the framework is non-essential, as the scrum team technically could do it themselves. The only concern when deciding if a feature should be incorporated into the framework is its universality. If it is universal, then it should be adopted; if not, it should not be adopted. Looking back at our current authorization feature, it is completely a universal function."
+# Check if two arguments are provided
+if [ "$#" -ne 2 ]; then
+    echo "Error: Two arguments are required."
+    echo "Usage: $0 <table_indicator> <is_test_data_indicator>"
+    exit 1
+fi
+
+# Assign arguments to variables
+table_indicator=$1
+is_test_data_indicator=$2
+
+# Validate is_test_data_indicator
+if [ "$is_test_data_indicator" != "Y" ] && [ "$is_test_data_indicator" != "N" ]; then
+    echo "Error: The second parameter must be 'Y' or 'N'."
+    exit 1
+fi
+
+# Convert Y/N to true/false
+is_test_data_value="false"
+if [ "$is_test_data_indicator" = "Y" ]; then
+    is_test_data_value="true"
+fi
+
+# Generate SQL statement
+sql_statement="delete from prefix_${table_indicator} where is_test_data = '${is_test_data_value}'"
+
+# Output the SQL statement
+echo "$sql_statement"
