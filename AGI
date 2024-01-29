@@ -22,30 +22,21 @@ public class DynamicQueryService {
 
     @Transactional(readOnly = true)
     public List<String> executeDynamicQuery(String tableName, String columnName, LocalDate date) {
-        // Validate the table name and column name to prevent SQL injection
-        if (!isSafeIdentifier(tableName) || !isSafeIdentifier(columnName)) {
-            throw new IllegalArgumentException("Invalid table name or column name");
-        }
-
         // Use TRUNC to remove the time component of the date in Oracle
         String sql = String.format("SELECT %s FROM %s WHERE TRUNC(eff_dt) <= ? AND is_valid = 'A'", columnName, tableName);
 
         // Convert LocalDate to java.sql.Date
         Date sqlDate = Date.valueOf(date);
 
-        return jdbcTemplate.query(sql, new Object[]{sqlDate}, new RowMapper<String>() {
+        // Define a RowMapper to convert the retrieved value to String
+        RowMapper<String> rowMapper = new RowMapper<String>() {
             @Override
             public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                // Get the result as an object and convert it to a string
-                Object resultObject = rs.getObject(1);
-                return resultObject != null ? resultObject.toString() : null;
+                return rs.getString(1); // Assuming the column value can be directly converted to String
             }
-        });
-    }
+        };
 
-    private boolean isSafeIdentifier(String identifier) {
-        // Implement a method to check that the identifier is a valid table or column name
-        // This is a simple example and should be replaced with a robust validation against a list of allowed identifiers
-        return identifier.matches("[A-Za-z0-9_]+");
+        // Execute the query using the new method signature
+        return jdbcTemplate.query(sql, rowMapper, sqlDate);
     }
 }
