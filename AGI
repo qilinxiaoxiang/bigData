@@ -1,30 +1,43 @@
-#!/bin/bash
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-# Check if two arguments are provided
-if [ "$#" -ne 2 ]; then
-    echo "Error: Two arguments are required."
-    echo "Usage: $0 <table_indicator> <is_test_data_indicator>"
-    exit 1
-fi
+import java.util.List;
 
-# Assign arguments to variables
-table_indicator=$1
-is_test_data_indicator=$2
+@Service
+public class DynamicQueryService {
 
-# Validate is_test_data_indicator
-if [ "$is_test_data_indicator" != "Y" ] && [ "$is_test_data_indicator" != "N" ]; then
-    echo "Error: The second parameter must be 'Y' or 'N'."
-    exit 1
-fi
+    private final JdbcTemplate jdbcTemplate;
 
-# Convert Y/N to true/false
-is_test_data_value="false"
-if [ "$is_test_data_indicator" = "Y" ]; then
-    is_test_data_value="true"
-fi
+    @Autowired
+    public DynamicQueryService(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
-# Generate SQL statement
-sql_statement="delete from prefix_${table_indicator} where is_test_data = '${is_test_data_value}'"
+    @Transactional(readOnly = true)
+    public List<String> executeDynamicQuery(String tableName, String columnName, String date) {
+        // Validate the table name and column name to prevent SQL injection
+        if (!isSafeIdentifier(tableName) || !isSafeIdentifier(columnName)) {
+            throw new IllegalArgumentException("Invalid table name or column name");
+        }
 
-# Output the SQL statement
-echo "$sql_statement"
+        String sql = String.format("SELECT %s FROM %s WHERE eff_dt <= ? AND is_valid = 'A'", columnName, tableName);
+
+        return jdbcTemplate.query(sql, new Object[]{date}, new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                // Get the result as an object and convert it to a string
+                Object resultObject = rs.getObject(1);
+                return resultObject != null ? resultObject.toString() : null;
+            }
+        });
+    }
+
+    private boolean isSafeIdentifier(String identifier) {
+        // Implement a method to check that the identifier is a valid table or column name
+        // This is a simple example and should be replaced with a robust validation against a list of allowed identifiers
+        return identifier.matches("[A-Za-z0-9_]+");
+    }
+}
