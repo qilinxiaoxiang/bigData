@@ -1,3 +1,39 @@
+// Aggregates TP amounts for each combination based on TFD
+private Map<String, BigDecimal> aggregateTpAmounts(List<Ticket> tickets) {
+    return tickets.stream()
+            .collect(Collectors.toMap(
+                    ticket -> generateAggregationKey(ticket),
+                    ticket -> BigDecimal.valueOf(ticket.getTpAmount()).setScale(2, BigDecimal.ROUND_HALF_UP),
+                    BigDecimal::add));
+}
+
+// Generates the key used for aggregating TP amounts, adjusting for ticket type differences
+private String generateAggregationKey(Ticket ticket) {
+    // For 'MF' tickets, include 'combination', 'NRD', and 'TFD'; for 'PFON', only 'combination' and 'TFD'
+    return "MF".equals(ticket.getTFD()) ?
+            ticket.getCombination() + "#" + ticket.getNRD() + "#" + ticket.getTFD() :
+            ticket.getCombination() + "#" + ticket.getTFD();
+}
+
+// Identifies invalid combinations
+private Set<String> identifyInvalidCombinations(Map<String, BigDecimal> aggregatedTpAmounts) {
+    // Extract just the combinations from the keys
+    Set<String> combinations = new HashSet<>();
+    aggregatedTpAmounts.keySet().forEach(key -> {
+        String[] parts = key.split("#"); // Split by the '#' added in generateAggregationKey
+        combinations.add(parts[0]); // Only take the combination part
+    });
+
+    // Determine invalid combinations
+    return combinations.stream()
+            .filter(combination -> 
+                    aggregatedTpAmounts.keySet().stream().anyMatch(key -> key.startsWith(combination + "#MF")) &&
+                    aggregatedTpAmounts.keySet().stream().anyMatch(key -> key.startsWith(combination + "#PFON")) &&
+                    aggregatedTpAmounts.entrySet().stream().anyMatch(e -> e.getKey().startsWith(combination) && e.getValue().compareTo(BigDecimal.ZERO) != 0))
+            .collect(Collectors.toSet());
+}
+
+
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
