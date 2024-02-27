@@ -1,42 +1,59 @@
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
+public class TicketValidator {
+    private List<Ticket> databaseTickets; // Assume this gets initialized elsewhere
 
-@Service
-public class DynamicQueryService {
-
-    private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public DynamicQueryService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public TicketValidator(List<Ticket> databaseTickets) {
+        this.databaseTickets = databaseTickets;
     }
 
-    @Transactional(readOnly = true)
-    public List<String> executeDynamicQuery(String tableName, String columnName, LocalDate date) {
-        // Use TRUNC to remove the time component of the date in Oracle
-        String sql = String.format("SELECT %s FROM %s WHERE TRUNC(eff_dt) <= ? AND is_valid = 'A'", columnName, tableName);
+    public List<Ticket> validateTickets(List<Ticket> inputTickets, String ticketType) {
+        // Combine database tickets with input tickets for 'adjustment' type, excluding soft-deleted ones
+        List<Ticket> allTickets = ticketType.equals("adjustment") ?
+                Stream.concat(databaseTickets.stream(), inputTickets.stream())
+                        .filter(ticket -> !inputTickets.contains(ticket) || !databaseTickets.contains(ticket)) // Exclude soft-deleted
+                        .collect(Collectors.toList()) :
+                new ArrayList<>(inputTickets); // For 'migration', use only input tickets
 
-        // Convert LocalDate to java.sql.Date
-        Date sqlDate = Date.valueOf(date);
+        // Aggregate TP amounts
+        Map<String, BigDecimal> aggregatedTpAmounts = aggregateTpAmounts(allTickets);
 
-        // Define a RowMapper to convert the retrieved value to String
-        RowMapper<String> rowMapper = new RowMapper<String>() {
-            @Override
-            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getString(1); // Assuming the column value can be directly converted to String
-            }
-        };
+        // Identify invalid combinations
+        Set<String> invalidCombinations = identifyInvalidCombinations(aggregatedTpAmounts);
 
-        // Execute the query using the new method signature
-        return jdbcTemplate.query(sql, rowMapper, sqlDate);
+        // Determine invalid tickets based on invalid combinations
+        return inputTickets.stream()
+                .filter(ticket -> invalidCombinations.contains(ticket.getCombination()))
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, BigDecimal> aggregateTpAmounts(List<Ticket> tickets) {
+        return tickets.stream()
+                .collect(Collectors.toMap(
+                        ticket -> generateAggregationKey(ticket),
+                        ticket -> BigDecimal.valueOf(ticket.getTpAmount()).setScale(2, BigDecimal.ROUND_HALF_UP),
+                        BigDecimal::add));
+    }
+
+    private String generateAggregationKey(Ticket ticket) {
+        return ticket.getCombination() + "#" + ticket.getTFD();
+    }
+
+    private Set<String> identifyInvalidCombinations(Map<String, BigDecimal> aggregatedTpAmounts) {
+        Set<String> combinations = aggregatedTpAmounts.keySet().stream()
+                .map(key -> key.substring(0, key.lastIndexOf("#")))
+                .collect(Collectors.toSet());
+
+        return combinations.stream()
+                .filter(combination -> {
+                    boolean hasMF = aggregatedTpAmounts.containsKey(combination + "#MF") && 
+                                      aggregatedTpAmounts.get(combination + "#MF").compareTo(BigDecimal.ZERO) > 0;
+                    boolean hasPFON = aggregatedTpAmounts.containsKey(combination + "#PFON") && 
+                                      aggregatedTpAmounts.get(combination + "#PFON").compareTo(BigDecimal.ZERO) > 0;
+                    return hasMF && hasPFON;
+                })
+                .collect(Collectors.toSet());
     }
 }
