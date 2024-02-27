@@ -76,3 +76,88 @@ public class TicketValidator {
         return invalidCombinations;
     }
 }
+
+
+
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class TicketValidator {
+
+    public List<Ticket> validateTickets(List<Ticket> inputTickets, List<Ticket> databaseTickets, String ticketType) {
+        List<Ticket> invalidTickets = new ArrayList<>();
+        Set<String> invalidCombinations = new HashSet<>();
+        Map<String, Set<String>> combinationToTicketIdsBeforeDeletion = new HashMap<>();
+
+        if ("adjustment".equals(ticketType)) {
+            // Map from combination to ticket IDs before any deletion
+            for (Ticket ticket : databaseTickets) {
+                combinationToTicketIdsBeforeDeletion
+                    .computeIfAbsent(ticket.getCombination(), k -> new HashSet<>())
+                    .add(ticket.getTicketId());
+            }
+
+            // Combine database and input tickets for adjustment
+            List<Ticket> combinedTickets = new ArrayList<>(databaseTickets);
+            combinedTickets.addAll(inputTickets);
+
+            // Aggregate TP amounts for combined tickets
+            Map<String, BigDecimal> aggregatedTpAmounts = aggregateTpAmounts(combinedTickets);
+            
+            // Identify invalid combinations
+            invalidCombinations = identifyInvalidCombinations(aggregatedTpAmounts);
+
+            // Find invalid tickets based on invalid combinations and pre-deletion ticket IDs
+            for (Ticket ticket : inputTickets) {
+                if (invalidCombinations.contains(ticket.getCombination()) ||
+                    invalidCombinations.stream().anyMatch(comb -> 
+                        combinationToTicketIdsBeforeDeletion.getOrDefault(comb, Collections.emptySet()).contains(ticket.getTicketId()))) {
+                    invalidTickets.add(ticket);
+                }
+            }
+        } else if ("migration".equals(ticketType)) {
+            // Aggregate TP amounts for input tickets only
+            Map<String, BigDecimal> aggregatedTpAmounts = aggregateTpAmounts(inputTickets);
+            
+            // Identify invalid combinations
+            invalidCombinations = identifyInvalidCombinations(aggregatedTpAmounts);
+
+            // Mark input tickets as invalid based on invalid combinations
+            for (Ticket ticket : inputTickets) {
+                if (invalidCombinations.contains(ticket.getCombination())) {
+                    invalidTickets.add(ticket);
+                }
+            }
+        }
+
+        return invalidTickets;
+    }
+
+    private Map<String, BigDecimal> aggregateTpAmounts(List<Ticket> tickets) {
+        return tickets.stream()
+                .collect(Collectors.toMap(
+                        ticket -> ticket.getCombination() + "#" + ticket.getTFD(),
+                        ticket -> BigDecimal.valueOf(ticket.getTpAmount()),
+                        BigDecimal::add));
+    }
+
+    private Set<String> identifyInvalidCombinations(Map<String, BigDecimal> aggregatedAmounts) {
+        Set<String> invalidCombinations = new HashSet<>();
+        for (String key : aggregatedAmounts.keySet()) {
+            String combination = key.split("#")[0];
+            String tfd = key.split("#")[1];
+            BigDecimal amount = aggregatedAmounts.get(key);
+            if ((tfd.equals("MF") && aggregatedAmounts.containsKey(combination + "#PFON")) ||
+                (tfd.equals("PFON") && aggregatedAmounts.containsKey(combination + "#MF"))) {
+                if (amount.compareTo(BigDecimal.ZERO) != 0 ||
+                    aggregatedAmounts.get(combination + (tfd.equals("MF") ? "#PFON" : "#MF")).compareTo(BigDecimal.ZERO) != 0) {
+                    invalidCombinations.add(combination);
+                }
+            }
+        }
+        return invalidCombinations;
+    }
+}
+
